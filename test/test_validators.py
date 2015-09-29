@@ -3,12 +3,15 @@
 import unittest
 from qav.validators import CompactListValidator, DateValidator, \
     DomainNameValidator, EmailValidator, HashValidator, IntegerValidator, \
-    YesNoValidator, CompactListValidator
+    YesNoValidator, ListValidator
 
 
 class TestValidators(unittest.TestCase):
 
     def setUp(self):
+        pass
+    
+    def test_basic_validation(self):
         pass
 
     def test_email_validator(self):
@@ -27,7 +30,6 @@ class TestValidators(unittest.TestCase):
         self.assertTrue(v.validate(100))
         self.assertTrue(isinstance(v._choice, int))
         self.assertTrue(v.validate("100"))
-#        self.assertFalse(v.validate(100.12))
         # string float to casted to int throws ValueError
         self.assertFalse(v.validate("100.12"))
         self.assertFalse(v.validate('letters'))
@@ -42,25 +44,25 @@ class TestValidators(unittest.TestCase):
         self.assertTrue(v.validate('nO'))
         self.assertFalse(v.validate('yeah'))
         self.assertFalse(v.validate('nope'))
-#        self.assertFalse(v.validate(0))
 
-    def test_compact_list_validator(self):
+    def test_list_validator(self):
         choices = ['a', 'b', 'c', 'd']
-        v = CompactListValidator(choices) 
+        v = ListValidator(choices) 
         self.assertTrue(v.validate('a'))    
         self.assertFalse(v.validate('f'))    
-#        self.assertFalse(v.validate(1))    
-        
         
     def test_date_validator(self):
-        pass
-
-    def test_domain_name_validator(self):
-        v = DomainNameValidator()
-        self.assertFalse('google')
-        self.assertFalse('google')
-        self.assertTrue('google.co.jp')
-        pass
+        v = DateValidator()
+        v2 = DateValidator(blank=True)
+        self.assertFalse(v.validate('1991101'))
+        with self.assertRaises(ValueError):
+            v.validate('19911410') # invalid month
+            v.validate('19911040') # invalid day
+            v.validate('09911040') # invalid year
+        self.assertTrue(v.validate('19911010'))
+        self.assertTrue(v2.validate(''))
+        self.assertEquals(None, v2._choice)
+        
 
     def test_mac_address_validator(self):
         pass
