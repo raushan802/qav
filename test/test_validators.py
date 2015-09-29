@@ -1,18 +1,25 @@
 #!/usr/bin/env python
 
 import unittest
+from utils import mac_generator
 from qav.validators import CompactListValidator, DateValidator, \
     DomainNameValidator, EmailValidator, HashValidator, IntegerValidator, \
-    YesNoValidator, ListValidator
+    YesNoValidator, ListValidator, Validator, MacAddressValidator
 
 
 class TestValidators(unittest.TestCase):
 
     def setUp(self):
         pass
-    
+
     def test_basic_validation(self):
-        pass
+        v = Validator()
+        self.assertFalse(v.validate(''))
+        v.blank = True
+        self.assertTrue(v.validate(''))
+        choice = 'new choice'
+        v.validate(choice)
+        self.assertEquals(choice, v._choice)
 
     def test_email_validator(self):
         v = EmailValidator()
@@ -47,24 +54,30 @@ class TestValidators(unittest.TestCase):
 
     def test_list_validator(self):
         choices = ['a', 'b', 'c', 'd']
-        v = ListValidator(choices) 
-        self.assertTrue(v.validate('a'))    
-        self.assertFalse(v.validate('f'))    
-        
+        v = ListValidator(choices)
+        self.assertTrue(v.validate('a'))
+        self.assertFalse(v.validate('f'))
+
     def test_date_validator(self):
         v = DateValidator()
         v2 = DateValidator(blank=True)
         self.assertFalse(v.validate('1991101'))
         with self.assertRaises(ValueError):
-            v.validate('19911410') # invalid month
-            v.validate('19911040') # invalid day
-            v.validate('09911040') # invalid year
+            v.validate('19911410')  # invalid month
+            v.validate('19911040')  # invalid day
+            v.validate('09911040')  # invalid year
         self.assertTrue(v.validate('19911010'))
         self.assertTrue(v2.validate(''))
         self.assertEquals(None, v2._choice)
-        
 
     def test_mac_address_validator(self):
-        pass
+        v = MacAddressValidator()
+        self.assertTrue(v.validate('00:00:00:00:00:00'))
+        self.assertFalse(v.validate('00:0g:00:00:00:00'))
+        self.assertFalse(v.validate('00:0g:00:00:00:000'))
+        mac = mac_generator()
+        self.assertTrue(v.validate(mac))
+
+
 if __name__ == "__main__":
     unittest.main()
