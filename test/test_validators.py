@@ -2,9 +2,11 @@
 
 import unittest
 from utils import mac_generator
-from qav.validators import CompactListValidator, DateValidator, \
-    DomainNameValidator, EmailValidator, HashValidator, IntegerValidator, \
-    YesNoValidator, ListValidator, Validator, MacAddressValidator
+from qav.validators import DateValidator, TupleValidator, \
+    EmailValidator, HashValidator, IntegerValidator, \
+    YesNoValidator, ListValidator, Validator, MacAddressValidator, \
+    IPAddressValidator
+from qav.filters import PreFilter
 
 
 class TestValidators(unittest.TestCase):
@@ -78,6 +80,32 @@ class TestValidators(unittest.TestCase):
         mac = mac_generator()
         self.assertTrue(v.validate(mac))
 
+    def test_ip_address_validator(self):
+        v = IPAddressValidator()
+        self.assertTrue(v.validate('192.168.1.12'))
+        self.assertTrue(v.validate('192.168.7.1'))
+        self.assertTrue(v.validate('10.10.17.12'))
+        self.assertFalse(v.validate('256.10.17.25'))
+        self.assertFalse(v.validate('192.256.17.25'))
+        self.assertFalse(v.validate('215.10.256.25'))
+        self.assertFalse(v.validate('10.10.17.256'))
 
+    def test_ip_netmask_validator(self):
+        pass
+
+    def test_ip_uri_validator(self):
+        pass
+
+    def test_ip_tuple_validator(self):
+        choices = [(1,'first'), (2,'second'), ('a','third')] 
+        v = TupleValidator(choices)
+        v.print_choices()
+        self.assertTrue(v.validate('1'))
+        self.assertTrue(v.validate('2'))
+    #    v.filters =
+        self.assertFalse(v.validate('4'))
+
+    def test_hash_validator(self):
+        pass
 if __name__ == "__main__":
     unittest.main()
